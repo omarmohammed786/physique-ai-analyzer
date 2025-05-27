@@ -5,28 +5,54 @@ import { Button } from "@/components/ui/button";
 import { Check, AlertCircle } from "lucide-react";
 
 const ImprovementPlan = () => {
-  const [strengths] = useState([
-    "Well-developed shoulders and upper body",
-    "Good symmetry and proportions", 
-    "Strong back development"
-  ]);
-
-  const [improvements] = useState([
-    "Focus on lower leg development",
-    "Increase core definition",
-    "Work on hamstring thickness"
-  ]);
-
-  const [workoutPlan] = useState([
-    { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
-    { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
-    { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },
-    { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
-    { exercise: "Walking Lunges", sets: "3 x 20 each", focus: "Legs" },
-    { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
-  ]);
+  const [strengths, setStrengths] = useState<string[]>([]);
+  const [improvements, setImprovements] = useState<string[]>([]);
+  const [workoutPlan, setWorkoutPlan] = useState<Array<{
+    exercise: string;
+    sets: string;
+    focus: string;
+  }>>([]);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load data from localStorage (stored by Analysis page)
+    const storedStrengths = localStorage.getItem('physique-strengths');
+    const storedImprovements = localStorage.getItem('physique-improvements');
+    const storedWorkoutPlan = localStorage.getItem('physique-workout-plan');
+
+    if (storedStrengths) {
+      setStrengths(JSON.parse(storedStrengths));
+    }
+    if (storedImprovements) {
+      setImprovements(JSON.parse(storedImprovements));
+    }
+    if (storedWorkoutPlan) {
+      setWorkoutPlan(JSON.parse(storedWorkoutPlan));
+    }
+
+    // Fallback to default data if nothing stored
+    if (!storedStrengths || !storedImprovements || !storedWorkoutPlan) {
+      setStrengths([
+        "Well-developed shoulders and upper body",
+        "Good symmetry and proportions", 
+        "Strong back development"
+      ]);
+      setImprovements([
+        "Focus on lower leg development",
+        "Increase core definition",
+        "Work on hamstring thickness"
+      ]);
+      setWorkoutPlan([
+        { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
+        { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
+        { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },
+        { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
+        { exercise: "Walking Lunges", sets: "3 x 20 each", focus: "Legs" },
+        { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
+      ]);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 px-4 py-8">

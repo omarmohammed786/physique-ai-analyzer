@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { analyzePhysique } from "@/utils/physiqueAnalysis";
 
 interface AnalysisResults {
   ratings: {
@@ -20,6 +20,11 @@ interface AnalysisResults {
   overallScore: number;
   strengths: string[];
   improvements: string[];
+  workoutPlan?: Array<{
+    exercise: string;
+    sets: string;
+    focus: string;
+  }>;
 }
 
 const Analysis = () => {
@@ -29,7 +34,7 @@ const Analysis = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const analyzePhysique = async () => {
+    const analyzePhysiqueWithAI = async () => {
       try {
         const gender = localStorage.getItem('physique-gender');
         const frontImage = localStorage.getItem('physique-front-image');
@@ -44,37 +49,20 @@ const Analysis = () => {
 
         setFrontImageUrl(frontImage);
 
-        // Simulate API call for now (replace with actual GPT-4o call)
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        console.log('Starting AI analysis...');
+        const analysisResults = await analyzePhysique(frontImage, backImage, sideImage, gender);
+        
+        // Store the workout plan for the improvement plan page
+        if (analysisResults.workoutPlan) {
+          localStorage.setItem('physique-workout-plan', JSON.stringify(analysisResults.workoutPlan));
+        }
+        
+        // Store strengths and improvements for the improvement plan page
+        localStorage.setItem('physique-strengths', JSON.stringify(analysisResults.strengths));
+        localStorage.setItem('physique-improvements', JSON.stringify(analysisResults.improvements));
 
-        // Mock results for demo
-        const mockResults: AnalysisResults = {
-          ratings: {
-            chest: 87,
-            shoulders: 92,
-            biceps: 90,
-            triceps: 88,
-            back: 91,
-            abs: 79,
-            glutes: 85,
-            quads: 83,
-            hamstrings: 80,
-            calves: 76
-          },
-          overallScore: 86,
-          strengths: [
-            "Well-developed shoulders and upper body",
-            "Good symmetry and proportions",
-            "Strong back development"
-          ],
-          improvements: [
-            "Focus on lower leg development",
-            "Increase core definition",
-            "Work on hamstring thickness"
-          ]
-        };
-
-        setResults(mockResults);
+        setResults(analysisResults);
+        console.log('Analysis completed successfully');
       } catch (error) {
         console.error('Analysis error:', error);
         toast.error("Analysis failed. Please try again.");
@@ -83,7 +71,7 @@ const Analysis = () => {
       }
     };
 
-    analyzePhysique();
+    analyzePhysiqueWithAI();
   }, [navigate]);
 
   const MuscleRating = ({ name, score }: { name: string; score: number }) => (

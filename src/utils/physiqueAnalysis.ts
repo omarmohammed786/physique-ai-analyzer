@@ -15,6 +15,11 @@ interface AnalysisResponse {
   overallScore: number;
   strengths: string[];
   improvements: string[];
+  workoutPlan?: Array<{
+    exercise: string;
+    sets: string;
+    focus: string;
+  }>;
 }
 
 export const analyzePhysique = async (
@@ -47,12 +52,14 @@ Briefly list:
 - 2–3 physique strengths
 - 2–3 improvement suggestions (training or posing tips)
 
+Also provide a custom workout plan with 6-8 exercises focusing on the areas that need improvement. For each exercise, include sets/reps and the target muscle group.
+
 Guidelines:
 - Be supportive and constructive but strict and accurate
 - Avoid negative tone or medical claims
 - If any image is unclear or cropped, mention it in your response
 
-Output format should be a JSON object with this structure:
+Output format should be a JSON object with this exact structure:
 {
   "ratings": {
     "chest": 87,
@@ -68,16 +75,30 @@ Output format should be a JSON object with this structure:
   },
   "overallScore": 86,
   "strengths": [
-    "Well-developed shoulders",
-    "Balanced upper body"
+    "Well-developed shoulders and upper body",
+    "Good symmetry and proportions"
   ],
   "improvements": [
-    "Add volume to lower back",
-    "Increase calf definition"
+    "Focus on lower leg development",
+    "Increase core definition"
+  ],
+  "workoutPlan": [
+    {
+      "exercise": "Calf Raises",
+      "sets": "4 x 15-20",
+      "focus": "Calves"
+    },
+    {
+      "exercise": "Planks",
+      "sets": "3 x 60s",
+      "focus": "Abs"
+    }
   ]
 }`;
 
   try {
+    console.log('Starting physique analysis with OpenAI GPT-4o...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -97,29 +118,38 @@ Output format should be a JSON object with this structure:
             ]
           }
         ],
-        max_tokens: 1000,
+        max_tokens: 1500,
         temperature: 0.3
       }),
     });
 
+    console.log('OpenAI API response status:', response.status);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API request failed:', response.status, errorText);
       throw new Error(`API request failed: ${response.status}`);
     }
 
     const data = await response.json();
+    console.log('OpenAI API response received:', data);
+    
     const analysisText = data.choices[0]?.message?.content;
+    console.log('Analysis text:', analysisText);
     
     // Try to parse JSON response
     const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
+      const parsedResult = JSON.parse(jsonMatch[0]);
+      console.log('Parsed analysis result:', parsedResult);
+      return parsedResult;
     }
     
-    throw new Error('Invalid response format');
+    throw new Error('Invalid response format from OpenAI');
   } catch (error) {
     console.error('Analysis error:', error);
     
-    // Fallback mock data for development
+    // Fallback mock data for development/error cases
     return {
       ratings: {
         chest: 85,
@@ -143,6 +173,14 @@ Output format should be a JSON object with this structure:
         "Focus on leg development",
         "Improve core definition",
         "Work on calf size"
+      ],
+      workoutPlan: [
+        { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
+        { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
+        { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },
+        { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
+        { exercise: "Walking Lunges", sets: "3 x 20 each", focus: "Legs" },
+        { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
       ]
     };
   }
