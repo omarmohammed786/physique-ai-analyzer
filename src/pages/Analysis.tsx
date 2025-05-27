@@ -1,0 +1,194 @@
+
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+
+interface AnalysisResults {
+  ratings: {
+    chest: number;
+    shoulders: number;
+    biceps: number;
+    triceps: number;
+    back: number;
+    abs: number;
+    glutes: number;
+    quads: number;
+    hamstrings: number;
+    calves: number;
+  };
+  overallScore: number;
+  strengths: string[];
+  improvements: string[];
+}
+
+const Analysis = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [results, setResults] = useState<AnalysisResults | null>(null);
+  const [frontImageUrl, setFrontImageUrl] = useState<string>("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const analyzePhysique = async () => {
+      try {
+        const gender = localStorage.getItem('physique-gender');
+        const frontImage = localStorage.getItem('physique-front-image');
+        const backImage = localStorage.getItem('physique-back-image');
+        const sideImage = localStorage.getItem('physique-side-image');
+
+        if (!gender || !frontImage || !backImage || !sideImage) {
+          toast.error("Missing required data. Please start over.");
+          navigate('/gender-selection');
+          return;
+        }
+
+        setFrontImageUrl(frontImage);
+
+        // Simulate API call for now (replace with actual GPT-4o call)
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        // Mock results for demo
+        const mockResults: AnalysisResults = {
+          ratings: {
+            chest: 87,
+            shoulders: 92,
+            biceps: 90,
+            triceps: 88,
+            back: 91,
+            abs: 79,
+            glutes: 85,
+            quads: 83,
+            hamstrings: 80,
+            calves: 76
+          },
+          overallScore: 86,
+          strengths: [
+            "Well-developed shoulders and upper body",
+            "Good symmetry and proportions",
+            "Strong back development"
+          ],
+          improvements: [
+            "Focus on lower leg development",
+            "Increase core definition",
+            "Work on hamstring thickness"
+          ]
+        };
+
+        setResults(mockResults);
+      } catch (error) {
+        console.error('Analysis error:', error);
+        toast.error("Analysis failed. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    analyzePhysique();
+  }, [navigate]);
+
+  const MuscleRating = ({ name, score }: { name: string; score: number }) => (
+    <div className="flex items-center justify-between p-4 bg-black/30 rounded-xl">
+      <span className="text-white font-medium">{name}</span>
+      <div className="flex items-center space-x-3">
+        <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full transition-all duration-1000"
+            style={{ width: `${score}%` }}
+          />
+        </div>
+        <span className="text-white font-bold text-lg w-8">{score}</span>
+      </div>
+    </div>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center px-4">
+        <div className="text-center">
+          <div className="w-20 h-20 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+          <h2 className="text-2xl font-bold text-white mb-2">Analyzing Your Physique</h2>
+          <p className="text-gray-300">AI is processing your photos...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!results) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 flex items-center justify-center px-4">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-white mb-4">Analysis Failed</h2>
+          <Button onClick={() => navigate('/gender-selection')}>
+            Start Over
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-blue-900 px-4 py-8">
+      <div className="max-w-md mx-auto">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-white mb-4">Your Results</h1>
+          
+          {frontImageUrl && (
+            <div className="w-24 h-24 mx-auto mb-4">
+              <img 
+                src={frontImageUrl} 
+                alt="Your photo" 
+                className="w-full h-full object-cover rounded-full border-4 border-purple-500"
+              />
+            </div>
+          )}
+          
+          <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/20 mb-6">
+            <div className="text-4xl font-bold text-white mb-2">{results.overallScore}/100</div>
+            <div className="text-lg text-purple-300">Overall Physique Score</div>
+          </div>
+        </div>
+
+        <div className="space-y-4 mb-8">
+          <div className="grid grid-cols-1 gap-3">
+            <MuscleRating name="Chest" score={results.ratings.chest} />
+            <MuscleRating name="Shoulders" score={results.ratings.shoulders} />
+            <MuscleRating name="Biceps" score={results.ratings.biceps} />
+            <MuscleRating name="Triceps" score={results.ratings.triceps} />
+            <MuscleRating name="Back" score={results.ratings.back} />
+            <MuscleRating name="Abs" score={results.ratings.abs} />
+            <MuscleRating name="Glutes" score={results.ratings.glutes} />
+            <MuscleRating name="Quads" score={results.ratings.quads} />
+            <MuscleRating name="Hamstrings" score={results.ratings.hamstrings} />
+            <MuscleRating name="Calves" score={results.ratings.calves} />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <Button
+            onClick={() => navigate('/improvement-plan')}
+            className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 text-lg rounded-xl transition-all duration-300"
+          >
+            View Improvement Plan
+          </Button>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              variant="outline"
+              className="border-purple-500 text-purple-300 hover:bg-purple-500/20"
+            >
+              Save Results
+            </Button>
+            <Button
+              variant="outline"
+              className="border-blue-500 text-blue-300 hover:bg-blue-500/20"
+            >
+              Share
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Analysis;
