@@ -25,7 +25,7 @@ const UploadBack = () => {
 
   const handleContinue = () => {
     if (selectedImage) {
-      navigate('/upload-side');
+      navigate('/analysis-type-selection');
     }
   };
 
@@ -88,7 +88,7 @@ const UploadBack = () => {
             disabled={!selectedImage}
             className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold py-3 text-lg rounded-xl transition-all duration-300"
           >
-            Continue to Side Photo
+            Continue to Analysis Options
           </Button>
         </div>
       </div>

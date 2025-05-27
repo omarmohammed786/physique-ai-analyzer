@@ -7,10 +7,11 @@ interface AnalysisResponse {
     triceps: number;
     back: number;
     abs: number;
-    glutes: number;
-    quads: number;
-    hamstrings: number;
-    calves: number;
+    lean: number;
+    glutes?: number;
+    quads?: number;
+    hamstrings?: number;
+    calves?: number;
   };
   overallScore: number;
   strengths: string[];
@@ -25,42 +26,36 @@ interface AnalysisResponse {
 export const analyzePhysique = async (
   frontImage: string,
   backImage: string,
-  sideImage: string,
-  gender: string
+  gender: string,
+  analysisType: 'upper-body' | 'full-body'
 ): Promise<AnalysisResponse> => {
   const API_KEY = "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";
   
-  const prompt = `You are a professional fitness AI assistant.
-
-The user has uploaded 3 full-body images: front-facing flexing, back-facing flexing, and side view. The user has selected their gender as ${gender}. Evaluate the physique based on muscular development, symmetry, proportion, and posture.
-
-Rate the following muscle groups on a scale from 1 to 100 based on visible development, conditioning, and symmetry:
+  const upperBodyMuscles = `
 - Chest  
 - Shoulders  
 - Biceps  
 - Triceps  
 - Back  
-- Abs  
+- Abs
+- Lean (body fat/definition level - be strict and objective)`;
+
+  const fullBodyMuscles = `
+- Chest  
+- Shoulders  
+- Biceps  
+- Triceps  
+- Back  
+- Abs
+- Lean (body fat/definition level - be strict and objective)
 - Glutes  
 - Quads  
 - Hamstrings  
-- Calves
+- Calves`;
 
-Provide an **Overall Physique Score** from 1 to 100, considering symmetry, muscle balance, and aesthetics.
-
-Briefly list:
-- 2–3 physique strengths
-- 2–3 improvement suggestions (training or posing tips)
-
-Also provide a custom workout plan with 6-8 exercises focusing on the areas that need improvement. For each exercise, include sets/reps and the target muscle group.
-
-Guidelines:
-- Be supportive and constructive but strict and accurate
-- Avoid negative tone or medical claims
-- If any image is unclear or cropped, mention it in your response
-
-Output format should be a JSON object with this exact structure:
-{
+  const muscleGroups = analysisType === 'upper-body' ? upperBodyMuscles : fullBodyMuscles;
+  
+  const upperBodyJsonExample = `{
   "ratings": {
     "chest": 87,
     "shoulders": 92,
@@ -68,6 +63,40 @@ Output format should be a JSON object with this exact structure:
     "triceps": 88,
     "back": 91,
     "abs": 79,
+    "lean": 75
+  },
+  "overallScore": 86,
+  "strengths": [
+    "Well-developed shoulders and upper body",
+    "Good symmetry and proportions"
+  ],
+  "improvements": [
+    "Focus on core definition",
+    "Increase overall leanness"
+  ],
+  "workoutPlan": [
+    {
+      "exercise": "Planks",
+      "sets": "3 x 60s",
+      "focus": "Abs"
+    },
+    {
+      "exercise": "HIIT Cardio",
+      "sets": "20 min",
+      "focus": "Fat Loss"
+    }
+  ]
+}`;
+
+  const fullBodyJsonExample = `{
+  "ratings": {
+    "chest": 87,
+    "shoulders": 92,
+    "biceps": 90,
+    "triceps": 88,
+    "back": 91,
+    "abs": 79,
+    "lean": 75,
     "glutes": 85,
     "quads": 83,
     "hamstrings": 80,
@@ -96,8 +125,36 @@ Output format should be a JSON object with this exact structure:
   ]
 }`;
 
+  const jsonExample = analysisType === 'upper-body' ? upperBodyJsonExample : fullBodyJsonExample;
+
+  const prompt = `You are a professional fitness AI assistant.
+
+The user has uploaded 2 full-body images: front-facing flexing and back-facing flexing. The user has selected their gender as ${gender} and wants ${analysisType === 'upper-body' ? 'upper body only' : 'full body'} analysis. Evaluate the physique based on muscular development, symmetry, proportion, and posture.
+
+Rate the following ${analysisType === 'upper-body' ? 'upper body' : ''} muscle groups on a scale from 1 to 100 based on visible development, conditioning, and symmetry:
+${muscleGroups}
+
+For the LEAN rating: Be strict and objective. This should reflect visible muscle definition, vascularity, and estimated body fat percentage. A score of 90+ should only be given to competition-level leanness with visible striations and extreme definition.
+
+Provide an **Overall Physique Score** from 1 to 100, considering symmetry, muscle balance, and aesthetics.
+
+Briefly list:
+- 2–3 physique strengths
+- 2–3 improvement suggestions (training or posing tips)
+
+Also provide a custom workout plan with 6-8 exercises focusing on the areas that need improvement. For each exercise, include sets/reps and the target muscle group.
+
+Guidelines:
+- Be supportive and constructive but strict and accurate
+- Avoid negative tone or medical claims
+- If any image is unclear or cropped, mention it in your response
+- For leanness rating, be particularly strict and objective
+
+Output format should be a JSON object with this exact structure:
+${jsonExample}`;
+
   try {
-    console.log('Starting physique analysis with OpenAI GPT-4o...');
+    console.log(`Starting ${analysisType} physique analysis with OpenAI GPT-4o...`);
     
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -113,8 +170,7 @@ Output format should be a JSON object with this exact structure:
             content: [
               { type: 'text', text: prompt },
               { type: 'image_url', image_url: { url: frontImage } },
-              { type: 'image_url', image_url: { url: backImage } },
-              { type: 'image_url', image_url: { url: sideImage } }
+              { type: 'image_url', image_url: { url: backImage } }
             ]
           }
         ],
@@ -150,19 +206,30 @@ Output format should be a JSON object with this exact structure:
     console.error('Analysis error:', error);
     
     // Fallback mock data for development/error cases
+    const fallbackRatings = analysisType === 'upper-body' ? {
+      chest: 85,
+      shoulders: 90,
+      biceps: 88,
+      triceps: 86,
+      back: 89,
+      abs: 78,
+      lean: 72
+    } : {
+      chest: 85,
+      shoulders: 90,
+      biceps: 88,
+      triceps: 86,
+      back: 89,
+      abs: 78,
+      lean: 72,
+      glutes: 83,
+      quads: 81,
+      hamstrings: 79,
+      calves: 74
+    };
+
     return {
-      ratings: {
-        chest: 85,
-        shoulders: 90,
-        biceps: 88,
-        triceps: 86,
-        back: 89,
-        abs: 78,
-        glutes: 83,
-        quads: 81,
-        hamstrings: 79,
-        calves: 74
-      },
+      ratings: fallbackRatings,
       overallScore: 84,
       strengths: [
         "Well-developed upper body",
@@ -170,11 +237,18 @@ Output format should be a JSON object with this exact structure:
         "Strong shoulder development"
       ],
       improvements: [
-        "Focus on leg development",
-        "Improve core definition",
-        "Work on calf size"
+        analysisType === 'full-body' ? "Focus on leg development" : "Improve core definition",
+        "Increase overall leanness",
+        analysisType === 'full-body' ? "Work on calf size" : "Build chest thickness"
       ],
-      workoutPlan: [
+      workoutPlan: analysisType === 'upper-body' ? [
+        { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
+        { exercise: "HIIT Cardio", sets: "20 min", focus: "Fat Loss" },
+        { exercise: "Push-ups", sets: "3 x 15", focus: "Chest" },
+        { exercise: "Pull-ups", sets: "3 x 8", focus: "Back" },
+        { exercise: "Pike Push-ups", sets: "3 x 12", focus: "Shoulders" },
+        { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
+      ] : [
         { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
         { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
         { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },

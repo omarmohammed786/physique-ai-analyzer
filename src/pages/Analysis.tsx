@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,10 +13,11 @@ interface AnalysisResults {
     triceps: number;
     back: number;
     abs: number;
-    glutes: number;
-    quads: number;
-    hamstrings: number;
-    calves: number;
+    lean: number;
+    glutes?: number;
+    quads?: number;
+    hamstrings?: number;
+    calves?: number;
   };
   overallScore: number;
   strengths: string[];
@@ -31,6 +33,7 @@ const Analysis = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [frontImageUrl, setFrontImageUrl] = useState<string>("");
+  const [analysisType, setAnalysisType] = useState<'upper-body' | 'full-body'>('full-body');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -39,18 +42,19 @@ const Analysis = () => {
         const gender = localStorage.getItem('physique-gender');
         const frontImage = localStorage.getItem('physique-front-image');
         const backImage = localStorage.getItem('physique-back-image');
-        const sideImage = localStorage.getItem('physique-side-image');
+        const storedAnalysisType = localStorage.getItem('physique-analysis-type') as 'upper-body' | 'full-body' || 'full-body';
 
-        if (!gender || !frontImage || !backImage || !sideImage) {
+        if (!gender || !frontImage || !backImage) {
           toast.error("Missing required data. Please start over.");
           navigate('/gender-selection');
           return;
         }
 
         setFrontImageUrl(frontImage);
+        setAnalysisType(storedAnalysisType);
 
-        console.log('Starting AI analysis...');
-        const analysisResults = await analyzePhysique(frontImage, backImage, sideImage, gender);
+        console.log(`Starting ${storedAnalysisType} AI analysis...`);
+        const analysisResults = await analyzePhysique(frontImage, backImage, gender, storedAnalysisType);
         
         // Store the workout plan for the improvement plan page
         if (analysisResults.workoutPlan) {
@@ -119,6 +123,9 @@ const Analysis = () => {
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-4">Your Results</h1>
+          <p className="text-purple-300 text-sm mb-4">
+            {analysisType === 'upper-body' ? 'Upper Body Analysis' : 'Full Body Analysis'}
+          </p>
           
           {frontImageUrl && (
             <div className="w-24 h-24 mx-auto mb-4">
@@ -144,10 +151,16 @@ const Analysis = () => {
             <MuscleRating name="Triceps" score={results.ratings.triceps} />
             <MuscleRating name="Back" score={results.ratings.back} />
             <MuscleRating name="Abs" score={results.ratings.abs} />
-            <MuscleRating name="Glutes" score={results.ratings.glutes} />
-            <MuscleRating name="Quads" score={results.ratings.quads} />
-            <MuscleRating name="Hamstrings" score={results.ratings.hamstrings} />
-            <MuscleRating name="Calves" score={results.ratings.calves} />
+            <MuscleRating name="Leanness" score={results.ratings.lean} />
+            
+            {analysisType === 'full-body' && (
+              <>
+                {results.ratings.glutes && <MuscleRating name="Glutes" score={results.ratings.glutes} />}
+                {results.ratings.quads && <MuscleRating name="Quads" score={results.ratings.quads} />}
+                {results.ratings.hamstrings && <MuscleRating name="Hamstrings" score={results.ratings.hamstrings} />}
+                {results.ratings.calves && <MuscleRating name="Calves" score={results.ratings.calves} />}
+              </>
+            )}
           </div>
         </div>
 

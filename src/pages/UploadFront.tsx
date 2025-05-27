@@ -40,6 +40,9 @@ const UploadFront = () => {
           <p className="text-gray-300 mb-4">
             Flex one or both arms. Make sure your full body is visible.
           </p>
+          <p className="text-purple-300 text-sm">
+            📸 Photo 1 of 2
+          </p>
         </div>
 
         <div className="bg-black/40 backdrop-blur-sm rounded-3xl p-6 border border-purple-500/20 mb-6">
