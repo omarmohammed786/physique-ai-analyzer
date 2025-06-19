@@ -1,4 +1,3 @@
-
 interface AnalysisResponse {
   ratings: {
     chest: number;
@@ -29,8 +28,8 @@ export const analyzePhysique = async (
   gender: string,
   analysisType: 'upper-body' | 'full-body'
 ): Promise<AnalysisResponse> => {
-  // Use the corrected API key
-  const API_KEY = "sk-proj-89KVDeepoN0bH3gO80wej3rA3_9memOnqtl2cJmmkZfDI0Y2FrqW_ZmzPvW8d_civBjolEo2GT3BlbkFJ5fG4spBG7pEml8TuDn0WpTnp-dJj2a7YoyPHFeZ0km9p-GAQlTCRmhblDpUzq7zp1STO7DDUMA";
+  // Use the updated API key
+  const API_KEY = "sk-proj-89KVDeepoN0bH3gO80wej3rA3_9memOnqtl2cJmmkZfDI0Y2FrqW_ZmzPvW8d_civBjolEo2GT3BlbkFJ5fG4spBG7pEml8TuDn0WpTnp-dJj2a7YoyPHFeZ0km9p-GAQlTCRmhblDpUzq7zp1STO7DDUGA";
   
   const upperBodyMuscles = `
 - Chest  
