@@ -12,10 +12,15 @@ const ImprovementPlan = () => {
     sets: string;
     focus: string;
   }>>([]);
+  const [analysisType, setAnalysisType] = useState<'upper-body' | 'full-body'>('full-body');
 
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Load analysis type from localStorage
+    const storedAnalysisType = localStorage.getItem('physique-analysis-type') as 'upper-body' | 'full-body' || 'full-body';
+    setAnalysisType(storedAnalysisType);
+
     // Load data from localStorage (stored by Analysis page)
     const storedStrengths = localStorage.getItem('physique-strengths');
     const storedImprovements = localStorage.getItem('physique-improvements');
@@ -33,24 +38,46 @@ const ImprovementPlan = () => {
 
     // Fallback to default data if nothing stored
     if (!storedStrengths || !storedImprovements || !storedWorkoutPlan) {
-      setStrengths([
-        "Well-developed shoulders and upper body",
-        "Good symmetry and proportions", 
-        "Strong back development"
-      ]);
-      setImprovements([
-        "Focus on lower leg development",
-        "Increase core definition",
-        "Work on hamstring thickness"
-      ]);
-      setWorkoutPlan([
-        { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
-        { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
-        { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },
-        { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
-        { exercise: "Walking Lunges", sets: "3 x 20 each", focus: "Legs" },
-        { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
-      ]);
+      // Set strengths based on analysis type
+      if (storedAnalysisType === 'upper-body') {
+        setStrengths([
+          "Well-developed shoulders and upper body",
+          "Good upper body symmetry and proportions",
+          "Strong back development"
+        ]);
+        setImprovements([
+          "Increase core definition and abs visibility",
+          "Build more chest thickness and width",
+          "Improve triceps separation and definition"
+        ]);
+        setWorkoutPlan([
+          { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
+          { exercise: "Incline Barbell Press", sets: "4 x 8-12", focus: "Chest" },
+          { exercise: "Close-Grip Push-ups", sets: "3 x 12-15", focus: "Triceps" },
+          { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
+          { exercise: "Dumbbell Flyes", sets: "3 x 12-15", focus: "Chest" },
+          { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
+        ]);
+      } else {
+        setStrengths([
+          "Well-developed shoulders and upper body",
+          "Good symmetry and proportions", 
+          "Strong back development"
+        ]);
+        setImprovements([
+          "Focus on lower leg development and calf size",
+          "Increase core definition and abs visibility",
+          "Work on hamstring thickness and separation"
+        ]);
+        setWorkoutPlan([
+          { exercise: "Calf Raises", sets: "4 x 15-20", focus: "Calves" },
+          { exercise: "Planks", sets: "3 x 60s", focus: "Abs" },
+          { exercise: "Romanian Deadlifts", sets: "4 x 8-12", focus: "Hamstrings" },
+          { exercise: "Hanging Leg Raises", sets: "3 x 12-15", focus: "Abs" },
+          { exercise: "Walking Lunges", sets: "3 x 20 each", focus: "Legs" },
+          { exercise: "Russian Twists", sets: "3 x 30", focus: "Abs" }
+        ]);
+      }
     }
   }, []);
 
@@ -60,6 +87,9 @@ const ImprovementPlan = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-white mb-4">Improvement Plan</h1>
           <p className="text-gray-300">Your personalized roadmap to better physique</p>
+          <p className="text-purple-300 text-sm mt-2">
+            {analysisType === 'upper-body' ? 'Upper Body Focus' : 'Full Body Focus'}
+          </p>
         </div>
 
         {/* Strengths Section */}
