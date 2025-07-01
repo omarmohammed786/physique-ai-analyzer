@@ -9,6 +9,7 @@ import GenderSelection from "./pages/GenderSelection";
 import UploadFront from "./pages/UploadFront";
 import UploadBack from "./pages/UploadBack";
 import AnalysisTypeSelection from "./pages/AnalysisTypeSelection";
+import Auth from "./pages/Auth";
 import Analysis from "./pages/Analysis";
 import ImprovementPlan from "./pages/ImprovementPlan";
 import NotFound from "./pages/NotFound";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/upload-front" element={<UploadFront />} />
           <Route path="/upload-back" element={<UploadBack />} />
           <Route path="/analysis-type-selection" element={<AnalysisTypeSelection />} />
+          <Route path="/auth" element={<Auth />} />
           <Route path="/analysis" element={<Analysis />} />
           <Route path="/improvement-plan" element={<ImprovementPlan />} />
           <Route path="*" element={<NotFound />} />

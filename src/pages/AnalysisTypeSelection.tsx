@@ -9,7 +9,7 @@ const AnalysisTypeSelection = () => {
 
   const handleContinue = () => {
     localStorage.setItem('physique-analysis-type', selectedType);
-    navigate('/analysis');
+    navigate('/auth');
   };
 
   return (
@@ -70,7 +70,7 @@ const AnalysisTypeSelection = () => {
           onClick={handleContinue}
           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 text-lg rounded-xl transition-all duration-300"
         >
-          Continue to Analysis
+          Continue to Sign In
         </Button>
       </div>
     </div>
