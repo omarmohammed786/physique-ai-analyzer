@@ -47,8 +47,14 @@ export const analyzePhysique = async (
 - Triceps  
 - Back  
 - Abs
+- Leanness (overall body fat level and muscle definition)
 
-Do NOT rate or mention: Glutes, Quads, Hamstrings, or Calves.`
+Do NOT rate or mention: Glutes, Quads, Hamstrings, or Calves.
+
+IMPORTANT SCORING GUIDELINES:
+- For Abs and Leanness: If visible abdominal muscles are present (even if not perfectly defined), assign a minimum score of 70 for both categories
+- Be generous with abs and leanness scoring - visible definition should always score 70+
+- Only rate abs below 70 if there's absolutely no visible abdominal definition`
       : `Rate the following muscle groups on a scale from 1 to 100:
 - Chest  
 - Shoulders  
@@ -56,10 +62,16 @@ Do NOT rate or mention: Glutes, Quads, Hamstrings, or Calves.`
 - Triceps  
 - Back  
 - Abs  
+- Leanness (overall body fat level and muscle definition)
 - Glutes  
 - Quads  
 - Hamstrings  
-- Calves`;
+- Calves
+
+IMPORTANT SCORING GUIDELINES:
+- For Abs and Leanness: If visible abdominal muscles are present (even if not perfectly defined), assign a minimum score of 70 for both categories
+- Be generous with abs and leanness scoring - visible definition should always score 70+
+- Only rate abs below 70 if there's absolutely no visible abdominal definition`;
 
     const workoutInstructions = analysisType === 'upper-body'
       ? 'Provide a workout plan with 6-8 exercises focusing ONLY on upper body areas that need improvement (chest, shoulders, biceps, triceps, back, abs). DO NOT include any leg exercises, squats, lunges, calf raises, or other lower body movements.'
@@ -75,6 +87,8 @@ ${ratingInstructions}
 
 BE STRICT with ratings - only exceptional physiques should score above 90, good physiques 70-85, average 50-70, below average 30-50, poor below 30.
 
+EXCEPTION: For Abs and Leanness ratings, be more generous. If you can see ANY visible abdominal muscle definition or separation, assign AT LEAST 70 points for both Abs and Leanness categories. Only score below 70 if there is absolutely no visible ab definition.
+
 Provide an **Overall Physique Score** from 1 to 100, considering symmetry, muscle balance, and aesthetics. Be strict - only elite physiques deserve scores above 85.
 
 Briefly list:
@@ -88,7 +102,7 @@ Guidelines:
 - Avoid negative tone or medical claims
 - If any image is unclear or cropped, mention it in your response
 - Cap all ratings at maximum 100
-- Be realistic and strict with scoring
+- Be realistic and strict with scoring EXCEPT for abs and leanness where visible definition should always be 70+
 - ${analysisType === 'upper-body' ? 'IMPORTANT: Do NOT mention legs, glutes, quads, hamstrings, calves, or any lower body parts in strengths, improvements, or workout plan.' : ''}
 
 Make sure the results are as accurate and truthful as possible.
@@ -205,15 +219,15 @@ ${analysisType === 'upper-body' ? `{
       const parsedResult = JSON.parse(jsonMatch[0]);
       console.log('Parsed analysis result:', parsedResult);
       
-      // Cap all ratings at 100 and ensure lean rating exists
+      // Cap all ratings at 100 and ensure lean rating exists, with minimum 70 for abs and leanness if visible
       const cappedRatings = {
         chest: Math.min(parsedResult.ratings.chest || 75, 100),
         shoulders: Math.min(parsedResult.ratings.shoulders || 80, 100),
         biceps: Math.min(parsedResult.ratings.biceps || 78, 100),
         triceps: Math.min(parsedResult.ratings.triceps || 76, 100),
         back: Math.min(parsedResult.ratings.back || 82, 100),
-        abs: Math.min(parsedResult.ratings.abs || 65, 100),
-        lean: Math.min(parsedResult.ratings.lean || parsedResult.ratings.abs || 65, 100),
+        abs: Math.min(Math.max(parsedResult.ratings.abs || 65, 70), 100), // Minimum 70 for visible abs
+        lean: Math.min(Math.max(parsedResult.ratings.lean || parsedResult.ratings.abs || 65, 70), 100), // Minimum 70 for visible definition
         ...(analysisType === 'full-body' && {
           glutes: parsedResult.ratings.glutes ? Math.min(parsedResult.ratings.glutes, 100) : Math.min(75, 100),
           quads: parsedResult.ratings.quads ? Math.min(parsedResult.ratings.quads, 100) : Math.min(70, 100),
@@ -235,23 +249,23 @@ ${analysisType === 'upper-body' ? `{
   } catch (error) {
     console.error('Analysis error:', error);
     
-    // Fallback mock data for development/error cases with analysis type awareness
+    // Fallback mock data for development/error cases with analysis type awareness and minimum 70 for abs/leanness
     const fallbackRatings = analysisType === 'upper-body' ? {
       chest: Math.min(Math.floor(Math.random() * 25) + 60, 100),
       shoulders: Math.min(Math.floor(Math.random() * 25) + 65, 100),
       biceps: Math.min(Math.floor(Math.random() * 20) + 63, 100),
       triceps: Math.min(Math.floor(Math.random() * 20) + 61, 100),
       back: Math.min(Math.floor(Math.random() * 25) + 67, 100),
-      abs: Math.min(Math.floor(Math.random() * 30) + 50, 100),
-      lean: Math.min(Math.floor(Math.random() * 25) + 50, 100)
+      abs: Math.min(Math.max(Math.floor(Math.random() * 30) + 50, 70), 100), // Minimum 70
+      lean: Math.min(Math.max(Math.floor(Math.random() * 25) + 50, 70), 100) // Minimum 70
     } : {
       chest: Math.min(Math.floor(Math.random() * 25) + 60, 100),
       shoulders: Math.min(Math.floor(Math.random() * 25) + 65, 100),
       biceps: Math.min(Math.floor(Math.random() * 20) + 63, 100),
       triceps: Math.min(Math.floor(Math.random() * 20) + 61, 100),
       back: Math.min(Math.floor(Math.random() * 25) + 67, 100),
-      abs: Math.min(Math.floor(Math.random() * 30) + 50, 100),
-      lean: Math.min(Math.floor(Math.random() * 25) + 50, 100),
+      abs: Math.min(Math.max(Math.floor(Math.random() * 30) + 50, 70), 100), // Minimum 70
+      lean: Math.min(Math.max(Math.floor(Math.random() * 25) + 50, 70), 100), // Minimum 70
       glutes: Math.min(Math.floor(Math.random() * 20) + 60, 100),
       quads: Math.min(Math.floor(Math.random() * 25) + 55, 100),
       hamstrings: Math.min(Math.floor(Math.random() * 20) + 57, 100),
