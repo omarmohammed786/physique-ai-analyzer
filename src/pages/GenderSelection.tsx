@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ const GenderSelection = () => {
   const handleContinue = () => {
     if (selectedGender) {
       localStorage.setItem('physique-gender', selectedGender);
-      navigate('/auth');
+      navigate('/upload-front');
     }
   };
 
