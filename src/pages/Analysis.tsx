@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -35,39 +34,19 @@ const Analysis = () => {
   const [results, setResults] = useState<AnalysisResults | null>(null);
   const [frontImageUrl, setFrontImageUrl] = useState<string>("");
   const [analysisType, setAnalysisType] = useState<'upper-body' | 'full-body'>('full-body');
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check authentication first
-    const checkAuth = async () => {
+    // Check if user is authenticated, if not redirect to auth
+    const checkAuthAndAnalyze = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         toast.error("Please sign in to view your analysis");
         navigate('/auth');
         return;
       }
-      setUser(session.user);
-    };
 
-    checkAuth();
-
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
-        navigate('/auth');
-      } else {
-        setUser(session.user);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
-
-  useEffect(() => {
-    if (!user) return;
-
-    const analyzePhysiqueWithAI = async () => {
+      // Proceed with analysis
       try {
         const gender = localStorage.getItem('physique-gender');
         const frontImage = localStorage.getItem('physique-front-image');
@@ -105,8 +84,8 @@ const Analysis = () => {
       }
     };
 
-    analyzePhysiqueWithAI();
-  }, [navigate, user]);
+    checkAuthAndAnalyze();
+  }, [navigate]);
 
   const MuscleRating = ({ name, score }: { name: string; score: number }) => (
     <div className="flex items-center justify-between p-4 bg-black/30 rounded-xl">
