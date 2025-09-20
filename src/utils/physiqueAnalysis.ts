@@ -23,6 +23,7 @@ interface AnalysisResponse {
     sets: string;
     focus: string;
   }>;
+  isFallbackData?: boolean;
 }
 
 export const analyzePhysique = async (
@@ -241,7 +242,8 @@ ${analysisType === 'upper-body' ? `{
         overallScore: Math.min(parsedResult.overallScore || 75, 100),
         strengths: parsedResult.strengths || [],
         improvements: parsedResult.improvements || [],
-        workoutPlan: parsedResult.workoutPlan || []
+        workoutPlan: parsedResult.workoutPlan || [],
+        isFallbackData: false
       };
     }
     
@@ -319,7 +321,8 @@ ${analysisType === 'upper-body' ? `{
     return {
       ratings: fallbackRatings,
       overallScore,
-      ...fallbackData
+      ...fallbackData,
+      isFallbackData: true
     };
   }
 };

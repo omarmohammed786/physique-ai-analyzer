@@ -28,6 +28,7 @@ interface AnalysisResults {
     sets: string;
     focus: string;
   }>;
+  isFallbackData?: boolean;
 }
 
 const Analysis = () => {
@@ -170,6 +171,11 @@ const Analysis = () => {
           <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-6 border border-purple-500/20 mb-6">
             <div className="text-4xl font-bold text-white mb-2">{results.overallScore}/100</div>
             <div className="text-lg text-purple-300">Overall Physique Score</div>
+            {results.isFallbackData && (
+              <div className="mt-3 px-3 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-lg">
+                <p className="text-yellow-300 text-sm">Using demo data - API analysis unavailable</p>
+              </div>
+            )}
           </div>
         </div>
 
