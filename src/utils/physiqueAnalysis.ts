@@ -33,7 +33,7 @@ export const analyzePhysique = async (
   analysisType: 'upper-body' | 'full-body'
 ): Promise<AnalysisResponse> => {
   try {
-    const API_KEY = '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';
+    const API_KEY = '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';
 
     const analysisTypeText = analysisType === 'upper-body' ? 'UPPER BODY ONLY' : 'FULL BODY';
     const focusAreas = analysisType === 'upper-body' 
