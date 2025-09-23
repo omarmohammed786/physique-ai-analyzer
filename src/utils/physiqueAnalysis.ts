@@ -33,7 +33,7 @@ export const analyzePhysique = async (
   analysisType: 'upper-body' | 'full-body'
 ): Promise<AnalysisResponse> => {
   try {
-    const API_KEY = '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';
+    const API_KEY = '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';
 
     const analysisTypeText = analysisType === 'upper-body' ? 'UPPER BODY ONLY' : 'FULL BODY';
     const focusAreas = analysisType === 'upper-body' 
@@ -184,7 +184,7 @@ ${analysisType === 'upper-body' ? `{
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-5-2025-08-07',
         messages: [
           {
             role: 'user',
@@ -195,8 +195,7 @@ ${analysisType === 'upper-body' ? `{
             ]
           }
         ],
-        max_tokens: 1500,
-        temperature: 0.3
+        max_completion_tokens: 1500
       }),
     });
 
